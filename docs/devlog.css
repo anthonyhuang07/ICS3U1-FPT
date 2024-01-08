@@ -18,7 +18,6 @@ body {
     margin: 0;
     position: relative;
     background-color: #020202;
-    font-family: 'Kanit', sans-serif;
 }
 
 header {
@@ -43,22 +42,28 @@ main {
     align-items: flex-start;
     margin: 4rem;
     padding: 3rem;
-    background-color: #0D2818;
+    background-color: #04471C;
     border-radius: 2rem;
     
 } main h1{
-    font-size: 5em;
+    font-size: 4em;
     color: white;
     font-family: 'Chakra Petch', monospace;
     font-weight: 700;
 } main h2{
-    font-size: 2.5em;
+    font-size: 2em;
     color: white;
     margin-bottom: 1rem;
     font-family: 'Chakra Petch', monospace;
     font-weight: 500;
 } main p{
     color: white;
+    font-size: 1.25em;
+    font-family: 'Chakra Petch', monospace;
+    font-weight: 300;
+} main li{
+    color: white;
+    margin-left: 1rem;
     font-size: 1.25em;
     font-family: 'Chakra Petch', monospace;
     font-weight: 300;
