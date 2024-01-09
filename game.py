@@ -30,17 +30,21 @@ DARK4 = (2, 2, 2)
 regular = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 60)
 light = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 30)
 
-baseMoney = 20
-growthRate = 10*(2**(1/3))*(5**0.5)
+baseMoney = 60
 
 money = 0
 
 def calcReqCost(n):
-    final = baseMoney*(19.19**(n-2))
+    final = baseMoney*(12**(n-2))
     return final
 
 
-def task(statVar, moneyReq, x, y):
+def task(statVar, moneyReq, x, y, n):
+
+    buyTxt = light.render("BUY TASK" + " - " + str(round(calcReqCost(n))), 1, LIGHT1)
+    buyTxtCan = light.render("BUY TASK" + " - " + str(round(calcReqCost(n))), 1, DARK4)
+    textWidth, textHeight = light.size("BUY TASK" + " - " + str(round(calcReqCost(n))))
+
     button = pygame.Rect(x, y, boxW, boxH)
 
     if money >= moneyReq and statVar == 0:
@@ -59,17 +63,6 @@ def task(statVar, moneyReq, x, y):
         pygame.draw.rect(screen, LIGHT1, (x, y, boxW, boxH), 6)
 
 
-def taskClick(statVar, moneyReq, moneyAdd, x, y):
-    global money
-    
-    if mx > x and mx < x + boxW and my > y and my < y + boxH:
-        if statVar == 0 and money >= moneyReq:
-            statVar = 1
-            money -= moneyReq
-        elif statVar == 1:
-            money += moneyAdd
-
-
 playing = True
 while playing:
     for event in pygame.event.get():
@@ -80,11 +73,27 @@ while playing:
             button = event.button
 
     if button == 1:
-        taskClick(1,0,1,boxRX,boxY1)
-        taskClick(t2s,10,2,boxRX,boxY2)
-        taskClick(t3s,10,5,boxRX,boxY3)
-        taskClick(t4s,10,10,boxRX,boxY2)
-        taskClick(t5s,10,2,boxRX,boxY2)
+        if mx > boxRX and mx < boxRX + boxW and my > boxY1 and my < boxY1 + boxH:
+            money += 1
+        elif mx > boxRX and mx < boxRX + boxW and my > boxY2 and my < boxY2 + boxH:
+            if t2s == 0 and money >= calcReqCost(2):
+                t2s = 1
+                money -= calcReqCost(2)
+            elif t2s == 1:
+                money += calcReqCost(2)
+        elif mx > boxRX and mx < boxRX + boxW and my > boxY3 and my < boxY3 + boxH:
+            if t3s == 0 and money >= calcReqCost(3):
+                t3s = 1
+                money -= calcReqCost(3)
+            elif t3s == 1:
+                money += calcReqCost(3)*0.75
+        elif mx > boxRX and mx < boxRX + boxW and my > boxY4 and my < boxY4 + boxH:
+            if t4s == 0 and money >= calcReqCost(4):
+                t4s = 1
+                money -= calcReqCost(4)
+            elif t4s == 1:
+                money += calcReqCost(4)*0.5
+
         button = 0
 
     # background
@@ -96,20 +105,16 @@ while playing:
     moneyText = regular.render("$" + str(money), 1, LIGHT1)
     screen.blit(moneyText, (100, 27.5))
 
-    buyTxt = light.render("BUY TASK", 1, LIGHT1)
-    buyTxtCan = light.render("BUY TASK", 1, DARK4)
-    textWidth, textHeight = light.size("BUY TASK")
-
     ## TASKS ##
 
-    task(1, 0, boxRX, boxY1)
-    task(t2s, calcReqCost(2), boxRX, boxY2)
-    task(t3s, calcReqCost(3), boxRX, boxY3)
-    task(t4s, calcReqCost(4), boxRX, boxY4)
-    task(t5s, calcReqCost(5), boxRX2, boxY1)
-    task(t6s, calcReqCost(6), boxRX2, boxY2)
-    task(t7s, calcReqCost(7), boxRX2, boxY3)
-    task(t8s, calcReqCost(8), boxRX2, boxY4)
+    task(1, 0, boxRX, boxY1, 1)
+    task(t2s, calcReqCost(2), boxRX, boxY2, 2)
+    task(t3s, calcReqCost(3), boxRX, boxY3, 3)
+    task(t4s, calcReqCost(4), boxRX, boxY4, 4)
+    task(t5s, calcReqCost(5), boxRX2, boxY1, 5)
+    task(t6s, calcReqCost(6), boxRX2, boxY2, 6)
+    task(t7s, calcReqCost(7), boxRX2, boxY3, 7)
+    task(t8s, calcReqCost(8), boxRX2, boxY4, 8)
 
     pygame.display.update()
 
