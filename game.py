@@ -113,7 +113,8 @@ def task(statVar, moneyReq, x, y, n):
         screen.blit(buyTxt, textRect)
     elif statVar == 1: # Bought
         # text
-        text = "$%.2f" % BIarr[n-1] * amounts[n-1]
+        income = BIarr[n-1] * amounts[n-1]
+        text = "$%.2f" % income
         incomeTxt = regularS.render(text, 1, LIGHT1)
         textWidthR, textHeightR = regularS.size(text)
         textXR = x+boxW/4-5 + (boxW/(4/3)+7 - textWidthR) // 2
@@ -156,7 +157,7 @@ while playing:
                 money -= calcTaskCost(1)
                 amounts[0] += 1
             else:
-                money += BI1*a1
+                money += BI1*amounts[0]
         elif mx > boxRX and mx < boxRX + boxW and my > boxY2 and my < boxY2 + boxH: # task 2
             if t2s == 0 and money >= calcReqCost(2):
                 t2s = 1
