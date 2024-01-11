@@ -69,6 +69,17 @@ t1s = 1
 t2s = t3s = t4s = t5s = t6s = t7s = t8s = 0
 statuses = [t1s, t2s, t3s, t4s, t5s, t6s, t7s, t8s]
 
+# task names
+t1 = "Recycled Cables"
+t2 = "Battery Recycling"
+t3 = "Refurbished Computers"
+t4 = "Solar Panel Installation"
+t5 = "Electric Cars"
+t6 = "Windmill Installation"
+t7 = "World Green Tech Event"
+t8 = "Recycled Tech Plant"
+names = [t1, t2, t3, t4, t5, t6, t7, t8]
+
 # base income
 BI1 = 1.00
 BI2 = calcReqCost(2)
@@ -95,43 +106,32 @@ coefficients = [CF1, CF2, CF3, CF4, CF5, CF6, CF7, CF8]
 a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = 1
 amounts = [a1, a2, a3, a4, a5, a6, a7, a8]
 
+# function that centers text input - all parameters specified
+def centerText(txt,font,col,x,y,w,h):
+    a = txt
+    aw, ah = font.size(a)
+    aX = x + (w - aw) // 2
+    aY = y + (h - ah) // 2
+    ar = pygame.Rect(aX, aY, aw, ah)
+    at = font.render(a, 1, col)
+    screen.blit(at, ar)
 
 # draws the task boxes
 def task(statVar, x, y, n):
-    buyTxt = light.render("BUY TASK - $%.2f" % calcReqCost(n), 1, LIGHT1)
-    buyTxtCan = light.render("BUY TASK - $%.2f" % calcReqCost(n), 1, DARK4)
-    textWidth, textHeight = light.size("BUY TASK - $%.2f" % calcReqCost(n))
 
     button = pygame.Rect(x, y, boxW, boxH)
 
     if money >= calcReqCost(n) and statVar == 0:  # Can Buy
         pygame.draw.rect(screen, LIGHT1, button)
-        textX = x + (boxW - textWidth) // 2
-        textY = y + (boxH - textHeight) // 2
-        textRect = pygame.Rect(textX, textY, textWidth, textHeight)
-        screen.blit(buyTxtCan, textRect)
+        centerText(names[n-1],light,DARK4,x,y-20,boxW,boxH)
+        centerText("$%.2f" % calcReqCost(n),light,DARK4,x,y+20,boxW,boxH)
     elif statVar == 0:  # Cannot Buy
         pygame.draw.rect(screen, LIGHT1, button, 2)
-        textX = x + (boxW - textWidth) // 2
-        textY = y + (boxH - textHeight) // 2
-        textRect = pygame.Rect(textX, textY, textWidth, textHeight)
-        screen.blit(buyTxt, textRect)
+        centerText(names[n-1],light,LIGHT1,x,y-20,boxW,boxH)
+        centerText("$%.2f" % calcReqCost(n),light,LIGHT1,x,y+20,boxW,boxH)
     elif statVar == 1:  # Bought
-        # text
-        income = BIarr[n - 1] * amounts[n - 1]
-        text = "$%.2f" % income
-        incomeTxt = regularS.render(text, 1, LIGHT1)
-        textWidthR, textHeightR = regularS.size(text)
-        textXR = x + boxW / 4 - 5 + (boxW / (4 / 3) + 7 - textWidthR) // 2
-        textYR = y + (boxH / 2 - textHeightR) // 2
-        textRectR = pygame.Rect(textXR, textYR + 4, textWidthR, textHeightR)
-        screen.blit(incomeTxt, textRectR)
-
-        text = "Buy x1 - %.2f" % calcTaskCost(n)
-        textWidthL, textHeightL = lightS.size(text)
-        textXL = x + boxW / 4 - 5 + (boxW / (4 / 3) / 1.4 + 7 - textWidthL) // 2
-        textYL = y + boxH / 2 + (boxH / 2 - textHeightL) // 2
-        textRectL = pygame.Rect(textXL, textYL, textWidthL, textHeightL)
+        inc = BIarr[n - 1] * amounts[n - 1]
+        centerText("$%.2f" % inc,regularS,LIGHT1,x+boxW/4-5,y+4,boxW / (4 / 3) + 7,boxH/2)
 
         # boxes
         pygame.draw.rect(screen, LIGHT1, (x, y, boxW, boxH), 5)  # whole task box
@@ -142,23 +142,24 @@ def task(statVar, x, y, n):
             (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) + 6, boxH / 2),
             5,
         )  # bottom action box
-        if money >= calcTaskCost(n):
+
+        centerText(str(amounts[n - 1]),regularS,DARK4,x,y,boxW / 4,boxH/0.66)
+
+        if money >= calcTaskCost(n):  # Can buy Worker
             pygame.draw.rect(
                 screen,
                 LIGHT1,
                 (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) / 1.4 + 6, boxH / 2),
             )
-            buyTxt2 = lightS.render(text, 1, DARK4)
-            screen.blit(buyTxt2, textRectL)
-        else:
+            centerText("Buy x1 - %.2f" % calcTaskCost(n),lightS,DARK4,x+boxW/4-5,y + boxH/2,boxW / (4 / 3) / 1.4+7,boxH/2)
+        else:  # Can't Buy Worker
             pygame.draw.rect(
                 screen,
                 LIGHT1,
                 (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) / 1.4 + 6, boxH / 2),
                 5,
             )
-            buyTxt2 = lightS.render(text, 1, LIGHT1)
-            screen.blit(buyTxt2, textRectL)
+            centerText("Buy x1 - %.2f" % calcTaskCost(n),lightS,LIGHT1,x+boxW/4-5,y + boxH/2,boxW / (4 / 3) / 1.4+7,boxH/2)
 
 
 def taskClick(n, x, y, bx, by):
@@ -232,10 +233,10 @@ while playing:
             count = 1
         yPos = [boxY1, boxY2, boxY3, boxY4]
         if i < 5:
-            task(statuses[i-1], boxRX, yPos[count - 1], i)
+            task(statuses[i - 1], boxRX, yPos[count - 1], i)
             count += 1
         else:
-            task(statuses[i-1], boxRX2, yPos[count - 1], i)
+            task(statuses[i - 1], boxRX2, yPos[count - 1], i)
             count += 1
 
     pygame.display.update()
