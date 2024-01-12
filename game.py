@@ -11,6 +11,10 @@ screen = pygame.display.set_mode((1000, 700))
 
 button = 0
 
+pygame.mixer.music.load("./assets/sounds/bgm.mp3")
+pygame.mixer.music.play(loops=-1)
+pygame.mixer.music.set_volume(0.2)
+
 # time related (cooldowns)
 clock = pygame.time.Clock()
 
@@ -58,6 +62,7 @@ DARK3 = (13, 40, 24)
 DARK4 = (2, 2, 2)
 
 # fonts
+medium = pygame.font.Font("./assets/fonts/ChakraPetch-Medium.ttf", 60)
 regular = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 60)
 regularS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 25)
 light = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 30)
@@ -183,13 +188,13 @@ def task(statVar, x, y, n):
             secs = round(cd/1000)
             mins = round(cd/60000)
             cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
-            centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2, boxW / (4.66) + 5, boxH / 2)
+            centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
         else:
             cd = cooldowns[n-1]
             secs = round(cd/1000)
             mins = round(cd/60000)
             cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
-            centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2, boxW / (4.66) + 5, boxH / 2)
+            centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
 
         # WORKER BUYING LOGIC
         if money >= calcTaskCost(n):  # Can buy Worker - Buy button turns Green
@@ -288,8 +293,7 @@ while playing:
 
     # header
     pygame.draw.rect(screen, LIGHT1, (1, 1, 999, 125), 2)
-    moneyText = regular.render("$%.2f" % money, 1, LIGHT1)
-    screen.blit(moneyText, (100, 27.5))
+    centerText("$%.2f" % money,medium,LIGHT1,1-325,1,999,124)
 
     ## TASKS ##
 
