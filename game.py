@@ -11,6 +11,24 @@ screen = pygame.display.set_mode((1000, 700))
 
 button = 0
 
+# time related (cooldowns)
+clock = pygame.time.Clock()
+
+s1 = s2 = s3 = s4 = s5 = s6 = s7 = s8 = True
+tm1 = tm2 = tm3 = tm4 = tm5 = tm6 = tm7 = tm8 = pygame.time.get_ticks()
+c1 = 0.6 * 1000
+c2 = 3 * 1000
+c3 = 6 * 1000
+c4 = 12 * 1000
+c5 = 24 * 1000
+c6 = 96 * 1000
+c7 = 384 * 1000
+c8 = 1536 * 1000
+
+canClick = [s1, s2, s3, s4, s5, s6, s7, s8]
+timers = [tm1, tm2, tm3, tm4, tm5, tm6, tm7, tm8]
+cooldowns = [c1, c2, c3, c4, c5, c6, c7, c8]
+
 # task coordinates
 boxW = 385
 boxH = 100
@@ -106,8 +124,9 @@ coefficients = [CF1, CF2, CF3, CF4, CF5, CF6, CF7, CF8]
 a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = 1
 amounts = [a1, a2, a3, a4, a5, a6, a7, a8]
 
+
 # function that centers text input - all parameters specified
-def centerText(txt,font,col,x,y,w,h):
+def centerText(txt, font, col, x, y, w, h):
     a = txt
     aw, ah = font.size(a)
     aX = x + (w - aw) // 2
@@ -116,57 +135,101 @@ def centerText(txt,font,col,x,y,w,h):
     at = font.render(a, 1, col)
     screen.blit(at, ar)
 
+
 # draws the task boxes
 def task(statVar, x, y, n):
+    global money
 
     button = pygame.Rect(x, y, boxW, boxH)
 
-    if money >= calcReqCost(n) and statVar == 0:  # Can Buy
+    if money >= calcReqCost(n) and statVar == 0:  # Can Buy - Buy Task turns Green
         pygame.draw.rect(screen, LIGHT1, button)
-        centerText(names[n-1],light,DARK4,x,y-20,boxW,boxH)
-        centerText("$%.2f" % calcReqCost(n),light,DARK4,x,y+20,boxW,boxH)
-    elif statVar == 0:  # Cannot Buy
+        centerText(names[n - 1], light, DARK4, x, y - 20, boxW, boxH)
+        centerText("$%.2f" % calcReqCost(n), light, DARK4, x, y + 20, boxW, boxH)
+    elif statVar == 0:  # Cannot Buy - Buy Task stays Black
         pygame.draw.rect(screen, LIGHT1, button, 2)
-        centerText(names[n-1],light,LIGHT1,x,y-20,boxW,boxH)
-        centerText("$%.2f" % calcReqCost(n),light,LIGHT1,x,y+20,boxW,boxH)
-    elif statVar == 1:  # Bought
-        inc = BIarr[n - 1] * amounts[n - 1]
-        centerText("$%.2f" % inc,regularS,LIGHT1,x+boxW/4-5,y+4,boxW / (4 / 3) + 7,boxH/2)
+        centerText(names[n - 1], light, LIGHT1, x, y - 20, boxW, boxH)
+        centerText("$%.2f" % calcReqCost(n), light, LIGHT1, x, y + 20, boxW, boxH)
+    elif statVar == 1:  # Task is Bought...
+        inc = BIarr[n - 1] * amounts[n - 1] # income
+        centerText(
+            "$%.2f" % inc,
+            regularS,
+            LIGHT1,
+            x + boxW / 4 - 5,
+            y + 4,
+            boxW / (4 / 3) + 7,
+            boxH / 2,
+        ) # 
 
         # boxes
         pygame.draw.rect(screen, LIGHT1, (x, y, boxW, boxH), 5)  # whole task box
-        pygame.draw.rect(screen, LIGHT1, (x, y, boxW / 4, boxH))  # picture box
+        pygame.draw.rect(screen, LIGHT1, (x, y, boxW / 4, boxH))  # left hand box
         pygame.draw.rect(
             screen,
             LIGHT1,
             (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) + 6, boxH / 2),
             5,
-        )  # bottom action box
+        )  # bottom action box - Buy and Cooldown
 
-        centerText(str(amounts[n - 1]),regularS,DARK4,x,y,boxW / 4,boxH/0.66)
+        centerText(str(amounts[n - 1]), regularS, DARK4, x, y + boxH / 2, boxW / 4, boxH / 2)
 
-        if money >= calcTaskCost(n):  # Can buy Worker
+        # COOLDOWN, AND ADD MONEY WHEN COOLDOWN ENDS
+        if canClick[n-1] == False:
+            cd = cooldowns[n-1] - (pygame.time.get_ticks() - timers[n-1])
+            if cd <= 0:
+                canClick[n-1] = True
+                money += BIarr[n - 1] * amounts[n - 1]
+            secs = round(cd/1000)
+            mins = round(cd/60000)
+            cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
+            centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2, boxW / (4.66) + 5, boxH / 2)
+        else:
+            cd = cooldowns[n-1]
+            secs = round(cd/1000)
+            mins = round(cd/60000)
+            cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
+            centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2, boxW / (4.66) + 5, boxH / 2)
+
+        # WORKER BUYING LOGIC
+        if money >= calcTaskCost(n):  # Can buy Worker - Buy button turns Green
             pygame.draw.rect(
                 screen,
                 LIGHT1,
                 (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) / 1.4 + 6, boxH / 2),
             )
-            centerText("Buy x1 - %.2f" % calcTaskCost(n),lightS,DARK4,x+boxW/4-5,y + boxH/2,boxW / (4 / 3) / 1.4+7,boxH/2)
-        else:  # Can't Buy Worker
+            centerText(
+                "Buy x1 - %.2f" % calcTaskCost(n),
+                lightS,
+                DARK4,
+                x + boxW / 4 - 5,
+                y + boxH / 2,
+                boxW / (4 / 3) / 1.4 + 7,
+                boxH / 2,
+            )
+        else:  # Can't Buy Worker - Buy button stays Black
             pygame.draw.rect(
                 screen,
                 LIGHT1,
                 (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) / 1.4 + 6, boxH / 2),
                 5,
             )
-            centerText("Buy x1 - %.2f" % calcTaskCost(n),lightS,LIGHT1,x+boxW/4-5,y + boxH/2,boxW / (4 / 3) / 1.4+7,boxH/2)
+            centerText(
+                "Buy x1 - %.2f" % calcTaskCost(n),
+                lightS,
+                LIGHT1,
+                x + boxW / 4 - 5,
+                y + boxH / 2,
+                boxW / (4 / 3) / 1.4 + 7,
+                boxH / 2,
+            )
 
 
 def taskClick(n, x, y, bx, by):
     global money
 
     if mx > x and mx < x + boxW and my > y and my < y + boxH:
-        if statuses[n - 1] == 0 and money >= calcReqCost(n):
+        if statuses[n - 1] == 0 and money >= calcReqCost(n):  # buy task
             statuses[n - 1] = 1
             money -= calcReqCost(n)
         elif (
@@ -176,7 +239,7 @@ def taskClick(n, x, y, bx, by):
             and mx < bx + buyW
             and my > by
             and my < by + buyH
-        ):
+        ):  # do nothing when pressing the buy button without sufficient funds
             return
         elif (
             statuses[n - 1] == 1
@@ -185,11 +248,14 @@ def taskClick(n, x, y, bx, by):
             and mx < bx + buyW
             and my > by
             and my < by + buyH
-        ):
+        ):  # buy worker
             money -= calcTaskCost(n)
             amounts[n - 1] += 1
         elif statuses[n - 1] == 1:
-            money += BIarr[n - 1] * amounts[n - 1]
+            if canClick[n-1] == True:
+                timers[n-1] = pygame.time.get_ticks()
+                canClick[n-1] = False
+
 
 
 playing = True
@@ -240,5 +306,6 @@ while playing:
             count += 1
 
     pygame.display.update()
+    clock.tick(60)
 
 pygame.quit()
