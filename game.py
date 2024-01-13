@@ -185,13 +185,13 @@ def task(statVar, x, y, n):
             if cd <= 0:
                 canClick[n-1] = True
                 money += BIarr[n - 1] * amounts[n - 1]
-            secs = round(cd/1000)
+            secs = round(cd/1000 % 60)
             mins = round(cd/60000)
             cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
             centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
         else:
             cd = cooldowns[n-1]
-            secs = round(cd/1000)
+            secs = round(cd/1000 % 60)
             mins = round(cd/60000)
             cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
             centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
