@@ -20,14 +20,14 @@ clock = pygame.time.Clock()
 
 s1 = s2 = s3 = s4 = s5 = s6 = s7 = s8 = True
 tm1 = tm2 = tm3 = tm4 = tm5 = tm6 = tm7 = tm8 = pygame.time.get_ticks()
-c1 = 0.6 * 1000
-c2 = 3 * 1000
-c3 = 6 * 1000
-c4 = 12 * 1000
-c5 = 24 * 1000
-c6 = 48 * 1000
-c7 = 96 * 1000
-c8 = 192 * 1000
+c1 = 0.5 * 1000
+c2 = 1 * 1000
+c3 = 2 * 1000
+c4 = 4 * 1000
+c5 = 8 * 1000
+c6 = 16 * 1000
+c7 = 32 * 1000
+c8 = 64 * 1000
 
 canClick = [s1, s2, s3, s4, s5, s6, s7, s8]
 timers = [tm1, tm2, tm3, tm4, tm5, tm6, tm7, tm8]
@@ -103,7 +103,7 @@ t8 = "Recycled Tech Plant"
 names = [t1, t2, t3, t4, t5, t6, t7, t8]
 
 # base income
-BI1 = 1.00
+BI1 = 1000000.00
 BI2 = calcReqCost(2)
 BI3 = calcReqCost(3) * 0.75
 BI4 = calcReqCost(4) * 0.5
@@ -142,16 +142,26 @@ def centerText(txt, font, col, x, y, w, h):
     at = font.render(a, 1, col)
     screen.blit(at, ar)
 
-def numberText(num):
+def numberText(num, case):
     number = "%.2f" % num
     if num >= 1000000000000:
-        number = "%.2fT" % (num/1000000000000)
+        if case == 1:
+            number = "%.2f Trillion" % (num/1000000000000)
+        else:
+            number = "%.2fT" % (num/1000000000000)
     elif num >= 1000000000:
-        number = "%.2fB" % (num/1000000000)
+        if case == 1:
+            number = "%.2f Billion" % (num/1000000000)
+        else:
+            number = "%.2fB" % (num/1000000000)
     elif num >= 1000000:
-        number = "%.2fM" % (num/1000000)
+        if case == 1:
+            number = "%.2f Million" % (num/1000000)
+        else:
+            number = "%.2fM" % (num/1000000)
     elif num >= 1000:
-        number = "%.2fK" % (num/1000)
+        if case != 1:
+            number = "%.2fK" % (num/1000)
     return number
 
 # draws the task boxes
@@ -163,11 +173,11 @@ def task(statVar, x, y, n):
     if money >= calcReqCost(n) * buyMultiplier and statVar == 0:  # Can Buy - Buy Task turns Green
         pygame.draw.rect(screen, LIGHT1, button)
         centerText(names[n - 1], light, DARK4, x, y - 20, boxW, boxH)
-        centerText(numberText(calcReqCost(n) * buyMultiplier), light, DARK4, x, y + 20, boxW, boxH)
+        centerText(numberText(calcReqCost(n) * buyMultiplier, 1), light, DARK4, x, y + 20, boxW, boxH)
     elif statVar == 0:  # Cannot Buy - Buy Task stays Black
         pygame.draw.rect(screen, LIGHT1, button, 2)
         centerText(names[n - 1], light, LIGHT1, x, y - 20, boxW, boxH)
-        centerText(numberText(calcReqCost(n) * buyMultiplier), light, LIGHT1, x, y + 20, boxW, boxH)
+        centerText(numberText(calcReqCost(n) * buyMultiplier, 1), light, LIGHT1, x, y + 20, boxW, boxH)
     elif statVar == 1:  # Task is Bought...
         # COOLDOWN, AND ADD MONEY WHEN COOLDOWN ENDS
         if canClick[n-1] == False:
@@ -200,7 +210,7 @@ def task(statVar, x, y, n):
         centerText(str(amounts[n - 1]), regularS, DARK4, x, y + boxH / 2, boxW / 4, boxH / 2)
 
         inc = BIarr[n - 1] * amounts[n - 1] # income
-        centerText(numberText(inc),regularS,LIGHT1,x + boxW / 4 - 5,y + 4,boxW / (4 / 3) + 7,boxH / 2)
+        centerText(numberText(inc, 0),regularS,LIGHT1,x + boxW / 4 - 5,y + 4,boxW / (4 / 3) + 7,boxH / 2)
 
         # WORKER BUYING LOGIC
         if money >= calcTaskCost(n) * buyMultiplier:  # Can buy Worker - Buy button turns Green
@@ -210,7 +220,7 @@ def task(statVar, x, y, n):
                 (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) / 1.4 + 6, boxH / 2),
             )
             centerText(
-                "Buy x%i - %.2f" % (buyMultiplier, calcTaskCost(n) * buyMultiplier),
+                "Buy x%i - %s" % (buyMultiplier, numberText(calcTaskCost(n) * buyMultiplier, 0)),
                 lightS,
                 DARK4,
                 x + boxW / 4 - 5,
@@ -226,7 +236,7 @@ def task(statVar, x, y, n):
                 5,
             )
             centerText(
-                "Buy x%i - %.2f" % (buyMultiplier, calcTaskCost(n) * buyMultiplier),
+                "Buy x%i - %s" % (buyMultiplier, numberText(calcTaskCost(n) * buyMultiplier, 0)),
                 lightS,
                 LIGHT1,
                 x + boxW / 4 - 5,
@@ -309,7 +319,7 @@ while playing:
 
     # header
     pygame.draw.rect(screen, LIGHT1, (1, 1, 999, 125), 2)
-    text = medium.render("$%.2f" % money, 1, LIGHT1)
+    text = medium.render(numberText(money, 1), 1, LIGHT1)
     screen.blit(text, (100,27.5))
 
     pygame.draw.rect(screen, LIGHT1, (860, 20, 120, 50))
