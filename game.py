@@ -4,30 +4,40 @@
 # https://adventure-capitalist.fandom.com/wiki/Businesses #
 # SAME MATHEMATICAL FORMULAS AS ADVENTURE CAPITALIST ARE USED! #
 
+# -TERMINIMOLOGY- #
+# Investment - Buy Extra of a Task to increase its profit #
+# Manager - Automatically performs a task for you
+
 import pygame
+import math
 
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 
-button = 0
-
+"""
 pygame.mixer.music.load("./assets/sounds/bgm.mp3")
 pygame.mixer.music.play(loops=-1)
 pygame.mixer.music.set_volume(0.2)
+"""
+
+# states
+button = 0
+shopStatus = 0
 
 # time related (cooldowns)
 clock = pygame.time.Clock()
 
 s1 = s2 = s3 = s4 = s5 = s6 = s7 = s8 = True
 tm1 = tm2 = tm3 = tm4 = tm5 = tm6 = tm7 = tm8 = pygame.time.get_ticks()
-c1 = 0.5 * 1000
-c2 = 1 * 1000
-c3 = 2 * 1000
-c4 = 4 * 1000
-c5 = 8 * 1000
-c6 = 16 * 1000
-c7 = 32 * 1000
-c8 = 64 * 1000
+
+c1 = 0.6 * 1000
+c2 = 3 * 1000
+c3 = 6 * 1000
+c4 = 12 * 1000
+c5 = 24 * 1000
+c6 = 48 * 1000
+c7 = 96 * 1000
+c8 = 192 * 1000
 
 canClick = [s1, s2, s3, s4, s5, s6, s7, s8]
 timers = [tm1, tm2, tm3, tm4, tm5, tm6, tm7, tm8]
@@ -37,13 +47,13 @@ cooldowns = [c1, c2, c3, c4, c5, c6, c7, c8]
 boxW = 385
 boxH = 100
 boxRX = 100
-boxRX2 = 525
+boxRX2 = 515
 boxY1 = 160
 boxY2 = 295
 boxY3 = 430
 boxY4 = 565
 
-# buy (worker) button coordinates
+# buy (investment) button coordinates
 buyW = boxW / (4 / 3) / 1.4 + 6
 buyH = boxH / 2
 buyRX = boxRX + boxW / 4 - 5
@@ -64,23 +74,9 @@ DARK4 = (2, 2, 2)
 medium = pygame.font.Font("./assets/fonts/ChakraPetch-Medium.ttf", 60)
 regular = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 60)
 regularS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 25)
+regularXS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 23)
 light = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 30)
 lightS = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 23)
-
-
-# calculates task cost requirements (e.g. task 2 is $60)
-def calcReqCost(n):
-    if n == 1:
-        final = 3.738317757
-    else:
-        final = baseMoney * (12 ** (n - 2))
-    return final
-
-
-def calcTaskCost(n):
-    final = calcReqCost(n) * (coefficients[n - 1] ** amounts[n - 1])
-    return final
-
 
 # base moneys
 money = 0.00
@@ -102,16 +98,9 @@ t7 = "World Green Tech Event"
 t8 = "Recycled Tech Plant"
 names = [t1, t2, t3, t4, t5, t6, t7, t8]
 
-# base income
-BI1 = 1000000.00
-BI2 = calcReqCost(2)
-BI3 = calcReqCost(3) * 0.75
-BI4 = calcReqCost(4) * 0.5
-BI5 = calcReqCost(5) * 0.5
-BI6 = calcReqCost(6) * 0.5
-BI7 = calcReqCost(7) * 0.5
-BI8 = calcReqCost(8) * 0.5
-BIarr = [BI1, BI2, BI3, BI4, BI5, BI6, BI7, BI8]
+# amount of task
+a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = 1
+amounts = [a1, a2, a3, a4, a5, a6, a7, a8]
 
 # coefficients constant
 CF1 = 1.07
@@ -124,9 +113,32 @@ CF7 = 1.10
 CF8 = 1.09
 coefficients = [CF1, CF2, CF3, CF4, CF5, CF6, CF7, CF8]
 
-# amount of task
-a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = 1
-amounts = [a1, a2, a3, a4, a5, a6, a7, a8]
+# calculates task cost requirements (e.g. task 2 is $60)
+def calcReqCost(n):
+    if n == 1:
+        final = 3.738317757
+    else:
+        final = baseMoney * (12 ** (n - 2))
+    return final
+
+def calcInvCost(n):
+    if statuses[n - 1] == 0:
+        final = (calcReqCost(n) * (1 - coefficients[n - 1]**buyMultiplier)) / (1 - coefficients[n-1])
+    else:
+        final = ((calcReqCost(n) * (coefficients[n - 1] ** amounts[n - 1])) * (1 - coefficients[n - 1]**buyMultiplier)) / (1 - coefficients[n-1])
+
+    return final
+
+# base income
+BI1 = 1.00
+BI2 = calcReqCost(2)
+BI3 = calcReqCost(3) * 0.75
+BI4 = calcReqCost(4) * 0.5
+BI5 = calcReqCost(5) * 0.5
+BI6 = calcReqCost(6) * 0.5
+BI7 = calcReqCost(7) * 0.5
+BI8 = calcReqCost(8) * 0.5
+BIarr = [BI1, BI2, BI3, BI4, BI5, BI6, BI7, BI8]
 
 multStatus = 0
 buyMultiplier = 1
@@ -170,31 +182,38 @@ def task(statVar, x, y, n):
 
     button = pygame.Rect(x, y, boxW, boxH)
 
-    if money >= calcReqCost(n) * buyMultiplier and statVar == 0:  # Can Buy - Buy Task turns Green
+    if money >= calcInvCost(n) and statVar == 0:  # Can Buy - Buy Task turns Green
         pygame.draw.rect(screen, LIGHT1, button)
         centerText(names[n - 1], light, DARK4, x, y - 20, boxW, boxH)
-        centerText(numberText(calcReqCost(n) * buyMultiplier, 1), light, DARK4, x, y + 20, boxW, boxH)
+        centerText(numberText(calcInvCost(n), 1), light, DARK4, x, y + 20, boxW, boxH)
     elif statVar == 0:  # Cannot Buy - Buy Task stays Black
         pygame.draw.rect(screen, LIGHT1, button, 2)
         centerText(names[n - 1], light, LIGHT1, x, y - 20, boxW, boxH)
-        centerText(numberText(calcReqCost(n) * buyMultiplier, 1), light, LIGHT1, x, y + 20, boxW, boxH)
+        centerText(numberText(calcInvCost(n), 1), light, LIGHT1, x, y + 20, boxW, boxH)
     elif statVar == 1:  # Task is Bought...
         # COOLDOWN, AND ADD MONEY WHEN COOLDOWN ENDS
         if canClick[n-1] == False:
             cd = cooldowns[n-1] - (pygame.time.get_ticks() - timers[n-1])
             pygame.draw.rect(screen, DARK1, (x + boxW / 4, y+5, (boxW / (4 / 3) - 4) - (cd/(cooldowns[n-1]/(boxW / (4 / 3) - 4))), boxH / 2))
+            secs = math.floor(cd/1000 % 60)
+            mins = math.floor(cd/60000)
+            if mins >= 1:
+                cooldown = '%im %is' % (mins, secs)
+            else:
+                cooldown = '%is' % (secs)
             if cd <= 0:
                 canClick[n-1] = True
                 money += BIarr[n - 1] * amounts[n - 1]
-            secs = round(cd/1000 % 60)
-            mins = round(cd/60000)
-            cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
+                cooldown = "0s"
             centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
         else:
             cd = cooldowns[n-1]
-            secs = round(cd/1000 % 60)
-            mins = round(cd/60000)
-            cooldown = '{mins:02d}:{secs:02d}'.format(mins=mins, secs=secs)
+            secs = math.floor(cd/1000 % 60)
+            mins = math.floor(cd/60000)
+            if mins >= 1:
+                cooldown = '%im %is' % (mins, secs)
+            else:
+                cooldown = '%is' % (secs)
             centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
 
         # boxes
@@ -212,15 +231,15 @@ def task(statVar, x, y, n):
         inc = BIarr[n - 1] * amounts[n - 1] # income
         centerText(numberText(inc, 0),regularS,LIGHT1,x + boxW / 4 - 5,y + 4,boxW / (4 / 3) + 7,boxH / 2)
 
-        # WORKER BUYING LOGIC
-        if money >= calcTaskCost(n) * buyMultiplier:  # Can buy Worker - Buy button turns Green
+        # INVESTMENT BUYING LOGIC
+        if money >= calcInvCost(n):  # Can buy Investment - Buy button turns Green
             pygame.draw.rect(
                 screen,
                 LIGHT1,
                 (x + boxW / 4 - 5, y + boxH / 2, boxW / (4 / 3) / 1.4 + 6, boxH / 2),
             )
             centerText(
-                "Buy x%i - %s" % (buyMultiplier, numberText(calcTaskCost(n) * buyMultiplier, 0)),
+                "Buy x%i - %s" % (buyMultiplier, numberText(calcInvCost(n), 0)),
                 lightS,
                 DARK4,
                 x + boxW / 4 - 5,
@@ -228,7 +247,7 @@ def task(statVar, x, y, n):
                 boxW / (4 / 3) / 1.4 + 7,
                 boxH / 2,
             )
-        else:  # Can't Buy Worker - Buy button stays Black
+        else:  # Can't Buy Investment - Buy button stays Black
             pygame.draw.rect(
                 screen,
                 LIGHT1,
@@ -236,7 +255,7 @@ def task(statVar, x, y, n):
                 5,
             )
             centerText(
-                "Buy x%i - %s" % (buyMultiplier, numberText(calcTaskCost(n) * buyMultiplier, 0)),
+                "Buy x%i - %s" % (buyMultiplier, numberText(calcInvCost(n), 0)),
                 lightS,
                 LIGHT1,
                 x + boxW / 4 - 5,
@@ -250,13 +269,13 @@ def taskClick(n, x, y, bx, by):
     global money
 
     if mx > x and mx < x + boxW and my > y and my < y + boxH:
-        if statuses[n - 1] == 0 and money >= calcReqCost(n) * buyMultiplier:  # buy task
+        if statuses[n - 1] == 0 and money >= calcInvCost(n):  # buy task
             statuses[n - 1] = 1
             amounts[n-1] = buyMultiplier
-            money -= calcReqCost(n) * buyMultiplier
+            money -= calcInvCost(n)
         elif (
             statuses[n - 1] == 1
-            and money < calcTaskCost(n) * buyMultiplier
+            and money < calcInvCost(n)
             and mx > bx
             and mx < bx + buyW
             and my > by
@@ -265,13 +284,13 @@ def taskClick(n, x, y, bx, by):
             return
         elif (
             statuses[n - 1] == 1
-            and money >= calcTaskCost(n) * buyMultiplier
+            and money >= calcInvCost(n)
             and mx > bx
             and mx < bx + buyW
             and my > by
             and my < by + buyH
-        ):  # buy worker
-            money -= calcTaskCost(n) * buyMultiplier
+        ):  # buy investment
+            money -= calcInvCost(n)
             amounts[n - 1] += buyMultiplier
         elif statuses[n - 1] == 1:
             if canClick[n-1] == True:
@@ -301,7 +320,7 @@ while playing:
             else:
                 taskClick(i, boxRX2, yPos[count - 1], buyRX2, yPos[-count])
                 count += 1
-        if mx >= 860 and mx <= 980 and my >= 20 and my <= 70:
+        if mx >= 865 and mx <= 985 and my >= 15 and my <= 60:
             multStatus += 1
             if multStatus == 1:
                 buyMultiplier = 10
@@ -310,6 +329,12 @@ while playing:
             elif multStatus == 3:
                 multStatus = 0
                 buyMultiplier = 1
+        elif mx >= 865 and mx <= 985 and my >= 70 and my <= 115:
+            if shopStatus == 0:
+                shopStatus = 1
+        elif mx >= 800 and mx <= 900 and my >= 100 and my <= 150:
+            if shopStatus == 1:
+                shopStatus = 0
 
         button = 0
 
@@ -317,13 +342,21 @@ while playing:
     screen.fill(DARK4)
     pygame.draw.rect(screen, LIGHT1, (1, 2, 999, 698), 2)
 
-    # header
+    ## HEADER ##
+
+    # header and money
     pygame.draw.rect(screen, LIGHT1, (1, 1, 999, 125), 2)
     text = medium.render(numberText(money, 1), 1, LIGHT1)
     screen.blit(text, (100,27.5))
 
-    pygame.draw.rect(screen, LIGHT1, (860, 20, 120, 50))
-    centerText("Buy x%i" % buyMultiplier, regularS, DARK4, 860, 20, 120, 50)
+    # buy multiplier button
+    pygame.draw.rect(screen, LIGHT1, (865, 15, 120, 45))
+    centerText("Buy x%i" % buyMultiplier, regularXS, DARK4, 865, 15, 120, 45)
+
+    # shop
+    pygame.draw.rect(screen, LIGHT1, (865, 70, 120, 45))
+    centerText("Shop", regularXS, DARK4, 865, 70, 120, 45)
+
 
     ## TASKS ##
 
@@ -338,6 +371,12 @@ while playing:
         else:
             task(statuses[i - 1], boxRX2, yPos[count - 1], i)
             count += 1
+
+    if shopStatus == 1:
+        pygame.draw.rect(screen, DARK4, (100, 100, 800, 500))
+        pygame.draw.rect(screen, LIGHT1, (100, 100, 800, 500), 2)
+        pygame.draw.rect(screen, LIGHT1, (800, 100, 100, 50), 2)
+        centerText("X",regularS,LIGHT1,800,100+2,100,50)
 
     pygame.display.update()
     clock.tick(60)
