@@ -14,11 +14,9 @@ import math
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 
-"""
 pygame.mixer.music.load("./assets/sounds/bgm.mp3")
 pygame.mixer.music.play(loops=-1)
 pygame.mixer.music.set_volume(0.2)
-"""
 
 # states
 button = 0
