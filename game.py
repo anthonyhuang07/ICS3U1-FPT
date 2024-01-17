@@ -15,9 +15,9 @@ import math
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 
-"""pygame.mixer.music.load("./assets/sounds/bgm.mp3")
+pygame.mixer.music.load("./assets/sounds/bgm.mp3")
 pygame.mixer.music.play(loops=-1)
-pygame.mixer.music.set_volume(0.2)"""
+pygame.mixer.music.set_volume(0.2)
 
 pygame.display.set_caption('ByteBucks')
 
@@ -176,7 +176,7 @@ def calcInvCost(n):
     return final
 
 # base income
-BI1 = 1.00
+BI1 = 10000.00
 BI2 = calcReqCost(2)
 BI3 = calcReqCost(3) * 0.75
 BI4 = calcReqCost(4) * 0.5
@@ -257,6 +257,9 @@ def task(statVar, x, y, n):
                 cooldown = "0s"
             centerText(cooldown, lightS, LIGHT1, x + boxW / 4 - 10 + boxW / (4 / 3) / 1.4 + 6, y + boxH / 2 + 1, boxW / (4.66) + 5, boxH / 2)
         else:
+            if manStats[n-1] == 1:
+                canClick[n-1] = False
+                timers[n-1] = pygame.time.get_ticks()
             cd = cooldowns[n-1]
             secs = math.floor(cd/1000 % 60)
             mins = math.floor(cd/60000)
@@ -317,7 +320,7 @@ def task(statVar, x, y, n):
 def taskClick(n, x, y, bx, by):
     global money
 
-    if mx > x and mx < x + boxW and my > y and my < y + boxH:
+    if mx > x and mx < x + boxW and my > y and my < y + boxH and shopStatus == 0:
         if statuses[n - 1] == 0 and money >= calcInvCost(n):  # buy task
             statuses[n - 1] = 1
             amounts[n-1] = buyMultiplier
@@ -346,16 +349,32 @@ def taskClick(n, x, y, bx, by):
                 timers[n-1] = pygame.time.get_ticks()
                 canClick[n-1] = False
 
-def manager(mStatVar, x, y, n):
+def manager(x, y, n):
     global money
 
     pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW, mBoxH), 2)  # whole task box
-    pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW*(4/5), mBoxH), 2)
+    pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW*(4/5), mBoxH), 2) # information box
     centerText(manNames[n-1],regularS,LIGHT1,x,y-30,mBoxW*(4/5),mBoxH)
     centerText("Runs " + names[n-1],lightS,LIGHT1,x,y,mBoxW*(4/5),mBoxH)
     centerText("$" + numberText(manCosts[n-1],1),regularS,LIGHT1,x,y+30,mBoxW*(4/5),mBoxH)
-    pygame.draw.rect(screen, LIGHT1, (x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH), 2)
-    centerText("Hire!",regularS,LIGHT1,x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH)
+    if money >= manCosts[n-1] and manStats[n-1] != 1:
+        pygame.draw.rect(screen, LIGHT1, (x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH)) # hire button
+        centerText("Hire!",regularS,DARK4,x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH)
+    elif manStats[n-1] == 1:
+        pygame.draw.rect(screen, DARK1, (x+mBoxW*(4/5)-2, y+2, mBoxW*(1/5), mBoxH-4)) # hired rectangle
+        pygame.draw.rect(screen, LIGHT1, (x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH),2) # hired outline
+        centerText("Hired!",regularS,DARK4,x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH)
+    else:
+        pygame.draw.rect(screen, LIGHT1, (x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH), 2) # hire button
+        centerText("Hire!",regularS,LIGHT1,x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH)
+
+def managerClick(x, y, n):
+    global money
+
+    if money >= manCosts[n-1] and manStats[n-1] != 1:
+        if button == 1 and mx >= x+mBoxW*(4/5)-2 and mx <= x+mBoxW*(4/5)-2+mBoxW*(1/5)+2 and my >= y and my <= y+mBoxH:
+            manStats[n-1] = 1
+            money -= manCosts[n-1]
 
 playing = True
 while playing:
@@ -378,6 +397,18 @@ while playing:
             else:
                 taskClick(i, boxRX2, yPos[count - 1], buyRX2, yPos[-count])
                 count += 1
+        if shopStatus == 1:
+            count = 1
+            for i in range(1, 9):
+                if i == 5:
+                    count = 1
+                yPos = [mBoxY1, mBoxY2, mBoxY3, mBoxY4]
+                if i < 5:
+                    managerClick(mBoxRX, yPos[count - 1], i)
+                    count += 1
+                else:
+                    managerClick(mBoxRX2, yPos[count - 1], i)
+                    count += 1
         if mx >= 865 and mx <= 985 and my >= 15 and my <= 60:
             multStatus += 1
             if multStatus == 1:
@@ -445,10 +476,10 @@ while playing:
                 count = 1
             yPos = [mBoxY1, mBoxY2, mBoxY3, mBoxY4]
             if i < 5:
-                manager(manStats[i - 1], mBoxRX, yPos[count - 1], i)
+                manager(mBoxRX, yPos[count - 1], i)
                 count += 1
             else:
-                manager(manStats[i - 1], mBoxRX2, yPos[count - 1], i)
+                manager(mBoxRX2, yPos[count - 1], i)
                 count += 1
 
     pygame.display.update()
