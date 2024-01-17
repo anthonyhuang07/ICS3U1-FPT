@@ -154,7 +154,12 @@ def centerText(txt, font, col, x, y, w, h):
 
 def numberText(num, case):
     number = "%.2f" % num
-    if num >= 1000000000000:
+    if num >= 1000000000000000:
+        if case == 1:
+            number = "%.2f Quadrillion" % (num/1000000000000000)
+        else:
+            number = "%.2fQ" % (num/1000000000000000)
+    elif num >= 1000000000000:
         if case == 1:
             number = "%.2f Trillion" % (num/1000000000000)
         else:
