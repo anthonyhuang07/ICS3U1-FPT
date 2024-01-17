@@ -176,7 +176,7 @@ def calcInvCost(n):
     return final
 
 # base income
-BI1 = 10000.00
+BI1 = 1.00
 BI2 = calcReqCost(2)
 BI3 = calcReqCost(3) * 0.75
 BI4 = calcReqCost(4) * 0.5
