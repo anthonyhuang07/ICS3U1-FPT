@@ -8,15 +8,36 @@
 # Investment - Buy Extra of a Task to increase its profit #
 # Manager - Automatically performs a task for you
 
+# pygame setup
 import pygame
 import math
 
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 
-pygame.mixer.music.load("./assets/sounds/bgm.mp3")
+"""pygame.mixer.music.load("./assets/sounds/bgm.mp3")
 pygame.mixer.music.play(loops=-1)
-pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.set_volume(0.2)"""
+
+pygame.display.set_caption('ByteBucks')
+
+pygame_icon = pygame.image.load('./assets/images/icon_512x512@2x.png')
+pygame.display.set_icon(pygame_icon)
+
+# colors
+LIGHT1 = (22, 219, 101)
+DARK1 = (5, 140, 66)
+DARK2 = (4, 71, 28)
+DARK3 = (13, 40, 24)
+DARK4 = (2, 2, 2)
+
+# fonts
+medium = pygame.font.Font("./assets/fonts/ChakraPetch-Medium.ttf", 60)
+regular = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 60)
+regularS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 25)
+regularXS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 23)
+light = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 30)
+lightS = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 23)
 
 # states
 button = 0
@@ -41,6 +62,31 @@ canClick = [s1, s2, s3, s4, s5, s6, s7, s8]
 timers = [tm1, tm2, tm3, tm4, tm5, tm6, tm7, tm8]
 cooldowns = [c1, c2, c3, c4, c5, c6, c7, c8]
 
+# base moneys
+money = 0.00
+baseMoney = 60.00
+
+# region TASKS
+# task names
+t1 = "Recycled Cables"
+t2 = "Battery Recycling"
+t3 = "Refurbished Computers"
+t4 = "Solar Panel Installation"
+t5 = "Electric Cars"
+t6 = "Windmill Installation"
+t7 = "World Green Tech Event"
+t8 = "Recycled Tech Plant"
+names = [t1, t2, t3, t4, t5, t6, t7, t8]
+
+# purchase status
+t1s = 1
+t2s = t3s = t4s = t5s = t6s = t7s = t8s = 0
+statuses = [t1s, t2s, t3s, t4s, t5s, t6s, t7s, t8s]
+
+# amount of task
+a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = 1
+amounts = [a1, a2, a3, a4, a5, a6, a7, a8]
+
 # task box coordinates
 boxW = 385
 boxH = 100
@@ -61,44 +107,46 @@ buyY2 = boxY2 + boxH / 2
 buyY3 = boxY3 + boxH / 2
 buyY4 = boxY4 + boxH / 2
 
-# colors
-LIGHT1 = (22, 219, 101)
-DARK1 = (5, 140, 66)
-DARK2 = (4, 71, 28)
-DARK3 = (13, 40, 24)
-DARK4 = (2, 2, 2)
+# endregion
 
-# fonts
-medium = pygame.font.Font("./assets/fonts/ChakraPetch-Medium.ttf", 60)
-regular = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 60)
-regularS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 25)
-regularXS = pygame.font.Font("./assets/fonts/ChakraPetch-Regular.ttf", 23)
-light = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 30)
-lightS = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 23)
+# region MANAGERS
+# manager names
+m1 = "Jessica Bluewoman" # jesse pinkman
+m2 = "Fade Dixon" # wade nixon
+m3 = "Linux Bastion" # linus sebastian
+m4 = "Mr. Best" # mrbeast
+m5 = "Alan Mask" # elon musk
+m6 = "Weston Aquawater" # wes bluemarine
+m7 = "Tatiana Mongoose" # tana mongeau
+m8 = "Jim Baker" # tim cook
+manNames = [m1, m2, m3, m4, m5, m6, m7, m8]
 
-# base moneys
-money = 0.00
-baseMoney = 60.00
+# manager costs
+m1c = 1000
+m2c = 15000
+m3c = 100000
+m4c = 500000
+m5c = 1200000
+m6c = 10000000
+m7c = 111111111
+m8c = 555555555
+manCosts = [m1c, m2c, m3c, m4c, m5c, m6c, m7c, m8c]
 
 # purchase status
-t1s = 1
-t2s = t3s = t4s = t5s = t6s = t7s = t8s = 0
-statuses = [t1s, t2s, t3s, t4s, t5s, t6s, t7s, t8s]
+m1s = m2s = m3s = m4s = m5s = m6s = m7s = m8s = 0
+manStats = [m1s, m2s, m3s, m4s, m5s, m6s, m7s, m8s]
 
-# task names
-t1 = "Recycled Cables"
-t2 = "Battery Recycling"
-t3 = "Refurbished Computers"
-t4 = "Solar Panel Installation"
-t5 = "Electric Cars"
-t6 = "Windmill Installation"
-t7 = "World Green Tech Event"
-t8 = "Recycled Tech Plant"
-names = [t1, t2, t3, t4, t5, t6, t7, t8]
+# manager box coordinates
+mBoxW = 425
+mBoxH = 100
+mBoxRX = 65
+mBoxRX2 = 510
+mBoxY1 = 215
+mBoxY2 = mBoxY1 + 113.33
+mBoxY3 = mBoxY2 + 113.33
+mBoxY4 = mBoxY3 + 113.33
 
-# amount of task
-a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = 1
-amounts = [a1, a2, a3, a4, a5, a6, a7, a8]
+# endregion
 
 # coefficients constant
 CF1 = 1.07
@@ -140,7 +188,6 @@ BIarr = [BI1, BI2, BI3, BI4, BI5, BI6, BI7, BI8]
 
 multStatus = 0
 buyMultiplier = 1
-
 
 # function that centers text input - all parameters specified
 def centerText(txt, font, col, x, y, w, h):
@@ -267,7 +314,6 @@ def task(statVar, x, y, n):
                 boxH / 2,
             )
 
-
 def taskClick(n, x, y, bx, by):
     global money
 
@@ -300,7 +346,16 @@ def taskClick(n, x, y, bx, by):
                 timers[n-1] = pygame.time.get_ticks()
                 canClick[n-1] = False
 
+def manager(mStatVar, x, y, n):
+    global money
 
+    pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW, mBoxH), 2)  # whole task box
+    pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW*(4/5), mBoxH), 2)
+    centerText(manNames[n-1],regularS,LIGHT1,x,y-30,mBoxW*(4/5),mBoxH)
+    centerText("Runs " + names[n-1],lightS,LIGHT1,x,y,mBoxW*(4/5),mBoxH)
+    centerText("$" + numberText(manCosts[n-1],1),regularS,LIGHT1,x,y+30,mBoxW*(4/5),mBoxH)
+    pygame.draw.rect(screen, LIGHT1, (x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH), 2)
+    centerText("Hire!",regularS,LIGHT1,x+mBoxW*(4/5)-2, y, mBoxW*(1/5)+2, mBoxH)
 
 playing = True
 while playing:
@@ -335,7 +390,9 @@ while playing:
         elif mx >= 865 and mx <= 985 and my >= 70 and my <= 115:
             if shopStatus == 0:
                 shopStatus = 1
-        elif mx >= 800 and mx <= 900 and my >= 100 and my <= 150:
+            elif shopStatus == 1:
+                shopStatus = 0
+        elif mx >= 875 and mx <= 975 and my >= 150 and my <= 200:
             if shopStatus == 1:
                 shopStatus = 0
 
@@ -349,7 +406,7 @@ while playing:
 
     # header and money
     pygame.draw.rect(screen, LIGHT1, (1, 1, 999, 125), 2)
-    text = medium.render(numberText(money, 1), 1, LIGHT1)
+    text = medium.render("$"+numberText(money, 1), 1, LIGHT1)
     screen.blit(text, (100,27.5))
 
     # buy multiplier button
@@ -361,8 +418,7 @@ while playing:
     centerText("Shop", regularXS, DARK4, 865, 70, 120, 45)
 
 
-    ## TASKS ##
-
+    # tasks
     count = 1
     for i in range(1, 9):
         if i == 5:
@@ -375,11 +431,25 @@ while playing:
             task(statuses[i - 1], boxRX2, yPos[count - 1], i)
             count += 1
 
+    # shop
     if shopStatus == 1:
-        pygame.draw.rect(screen, DARK4, (100, 100, 800, 500))
-        pygame.draw.rect(screen, LIGHT1, (100, 100, 800, 500), 2)
-        pygame.draw.rect(screen, LIGHT1, (800, 100, 100, 50), 2)
-        centerText("X",regularS,LIGHT1,800,100+2,100,50)
+        pygame.draw.rect(screen, DARK4, (25, 150, 950, 525))
+        pygame.draw.rect(screen, LIGHT1, (25, 150, 950, 525), 5)
+        pygame.draw.rect(screen, LIGHT1, (25, 150, 950, 50), 5)
+        pygame.draw.rect(screen, LIGHT1, (875, 150, 100, 50), 5)
+        centerText("X",regularS,LIGHT1,875,150+2,100,50)
+    
+        count = 1
+        for i in range(1, 9):
+            if i == 5:
+                count = 1
+            yPos = [mBoxY1, mBoxY2, mBoxY3, mBoxY4]
+            if i < 5:
+                manager(manStats[i - 1], mBoxRX, yPos[count - 1], i)
+                count += 1
+            else:
+                manager(manStats[i - 1], mBoxRX2, yPos[count - 1], i)
+                count += 1
 
     pygame.display.update()
     clock.tick(60)
