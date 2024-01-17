@@ -436,8 +436,8 @@ while playing:
         pygame.draw.rect(screen, DARK4, (25, 150, 950, 525))
         pygame.draw.rect(screen, LIGHT1, (25, 150, 950, 525), 5)
         pygame.draw.rect(screen, LIGHT1, (25, 150, 950, 50), 5)
-        pygame.draw.rect(screen, LIGHT1, (875, 150, 100, 50), 5)
-        centerText("X",regularS,LIGHT1,875,150+2,100,50)
+        pygame.draw.rect(screen, LIGHT1, (875, 150, 100, 50))
+        centerText("X",regularS,DARK4,875,150+2,100,50)
     
         count = 1
         for i in range(1, 9):
