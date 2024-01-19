@@ -220,8 +220,6 @@ unlocks7 = [us71, us72, us73, us74, us75, us76, us77, us78]
 
 # region MONEY
 
-# base moneys
-
 # calculates task cost requirements (e.g. task 2 is $60)
 def calcReqCost(n):
     if n == 1:
@@ -244,7 +242,7 @@ def calcInvCost(n):
 
     return final
 
-
+# base moneys
 money = 0.00
 baseMoney = 60.00
 
@@ -743,6 +741,7 @@ while playing:
                 shopStatus = 1
             elif shopStatus == 1:
                 shopStatus = 0
+            buy.play()
         elif mx >= 875 and mx <= 975 and my >= 150 and my <= 200:
             if shopStatus == 1:
                 shopStatus = 0
