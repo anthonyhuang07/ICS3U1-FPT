@@ -41,7 +41,7 @@ lightXS = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 21)
 # endregion
 
 # region MUSIC
-music = 0  # turns music on or off, DEFAULT 1
+music = 1  # turns music on or off, DEFAULT 1
 
 # bgm
 bgm = pygame.mixer.music.load("./assets/sounds/bgm.mp3")
@@ -755,6 +755,14 @@ while playing:
             file = open("save.txt", "r")
             money = float(file.read())
             file.close()
+        elif mx >= 605 and mx <= 725 and my >= 15 and my <= 60: # music button
+            if music == 1:
+                music = 0
+                pygame.mixer.music.stop()
+            else:
+                music = 1
+                pygame.mixer.music.play(-1)
+        elif mx >= 605 and mx <= 725 and my >= 70 and my <= 115: # music button
 
         button = 0
 
@@ -784,6 +792,14 @@ while playing:
     # load button
     pygame.draw.rect(screen, LIGHT1, (735, 70, 120, 45))
     centerText("Load", regularXS, DARK4, 735, 70, 120, 45)
+
+    # music button
+    pygame.draw.rect(screen, LIGHT1, (605, 15, 120, 45))
+    centerText("Music", regularXS, DARK4, 605, 15, 120, 45)
+
+    # instructions button
+    pygame.draw.rect(screen, LIGHT1, (605, 70, 120, 45))
+    centerText("Music", regularXS, DARK4, 605, 70, 120, 45)
 
     # endregion
 
