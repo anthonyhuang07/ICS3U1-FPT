@@ -41,7 +41,7 @@ lightXS = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 21)
 # endregion
 
 # region MUSIC
-music = 1  # turns music on or off, DEFAULT 1
+music = 0  # turns music on or off, DEFAULT 1
 
 # bgm
 bgm = pygame.mixer.music.load("./assets/sounds/bgm.mp3")
@@ -205,8 +205,6 @@ us41 = us42 = us43 = us44 = us45 = us46 = us47 = us48 = 0  # 200
 us51 = us52 = us53 = us54 = us55 = us56 = us57 = us58 = 0  # 300
 us61 = us62 = us63 = us64 = us65 = us66 = us67 = us68 = 0  # 400
 us71 = us72 = us73 = us74 = us75 = us76 = us77 = us78 = 0  # 500
-
-aus1 = 0 # all tasks unlocked
 
 unlocks1 = [us11, us12, us13, us14, us15, us16, us17, us18]
 unlocks2 = [us21, us22, us23, us24, us25, us26, us27, us28]
@@ -726,7 +724,7 @@ while playing:
                 else:
                     shopClick(mBoxRX2, yPos[count - 1], i)
                     count += 1
-        if mx >= 865 and mx <= 985 and my >= 15 and my <= 60:
+        if mx >= 865 and mx <= 985 and my >= 15 and my <= 60: # header - buy multiplier button
             multStatus += 1
             if multStatus == 1:
                 buyMultiplier = 10
@@ -736,19 +734,27 @@ while playing:
                 multStatus = 0
                 buyMultiplier = 1
             toggle.play()
-        elif mx >= 865 and mx <= 985 and my >= 70 and my <= 115:
+        elif mx >= 865 and mx <= 985 and my >= 70 and my <= 115: # shop button - open and close
             if shopStatus == 0:
                 shopStatus = 1
             elif shopStatus == 1:
                 shopStatus = 0
             buy.play()
-        elif mx >= 875 and mx <= 975 and my >= 150 and my <= 200:
+        elif mx >= 875 and mx <= 975 and my >= 150 and my <= 200: # shop X button - close shop
             if shopStatus == 1:
                 shopStatus = 0
-        elif mx >= 25 and mx <= 175 and my >= 150 and my <= 200:
+        elif mx >= 25 and mx <= 175 and my >= 150 and my <= 200 and shopStatus == 1: # switch to managers in shop
             sMenuStatus = 0
-        elif mx >= 175 and mx <= 325 and my >= 150 and my <= 200:
+        elif mx >= 175 and mx <= 325 and my >= 150 and my <= 200 and shopStatus == 1: # switch to upgrades in shop
             sMenuStatus = 1
+        elif mx >= 735 and mx <= 855 and my >= 15 and my <= 60: # save button
+            file = open("save.txt", "w")
+            file.write(str(money))
+            file.close()
+        elif mx >= 735 and mx <= 855 and my >= 70 and my <= 115: # load button
+            file = open("save.txt", "r")
+            money = float(file.read())
+            file.close()
 
         button = 0
 
@@ -770,6 +776,14 @@ while playing:
     # shop
     pygame.draw.rect(screen, LIGHT1, (865, 70, 120, 45))
     centerText("Shop", regularXS, DARK4, 865, 70, 120, 45)
+
+    # save button
+    pygame.draw.rect(screen, LIGHT1, (735, 15, 120, 45))
+    centerText("Save", regularXS, DARK4, 735, 15, 120, 45)
+
+    # load button
+    pygame.draw.rect(screen, LIGHT1, (735, 70, 120, 45))
+    centerText("Load", regularXS, DARK4, 735, 70, 120, 45)
 
     # endregion
 
@@ -815,6 +829,8 @@ while playing:
             else:
                 shop(mBoxRX2, yPos[count - 1], i)
                 count += 1
+
+    
 
     pygame.display.update()
     clock.tick(60)
