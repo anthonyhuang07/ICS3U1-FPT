@@ -5,10 +5,16 @@
 # https://adventure-capitalist.fandom.com/wiki/Cash_Upgrades #
 # https://adventure-capitalist.fandom.com/wiki/Unlocks_(Earth) #
 # SAME (or similar) MATHEMATICAL FORMULAS AS ADVENTURE CAPITALIST ARE USED! #
+# 911 LINES TOTAL WRITEN! #
 
-# -TERMINIMOLOGY- #
-# Investment - Buy Extra of a Task to increase its profit #
-# Manager - Automatically performs a task for you
+"""
+                  ICS3U1-FPT :                              Total
+                 Editor time :                            5.8 hrs
+            Active code time :                            2.8 hrs
+         Lines of code added :                              1,451
+       Lines of code deleted :                                680
+            Total keystrokes :                             21,300
+"""
 
 # region PYGAME
 import pygame
@@ -17,6 +23,8 @@ import webbrowser
 
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))  # width 1000, height 700
+
+# icon and window title
 
 pygame.display.set_caption("ByteBucks")
 
@@ -44,11 +52,11 @@ lightXS = pygame.font.Font("./assets/fonts/ChakraPetch-Light.ttf", 21)
 # region MUSIC
 music = 1  # turns music on or off, DEFAULT 1
 
-# bgm
+# background music
 bgm = pygame.mixer.music.load("./assets/sounds/bgm.mp3")
 pygame.mixer.music.set_volume(0.5)
 
-# sfx
+# sound effects
 buy = pygame.mixer.Sound("./assets/sounds/buy.wav")
 toggle = pygame.mixer.Sound("./assets/sounds/toggle_click.wav")
 upgrade = pygame.mixer.Sound("./assets/sounds/upgrade.wav")
@@ -58,28 +66,48 @@ if music == 1:
 
 # endregion
 
+# region IMAGES
+i1 = pygame.transform.scale(pygame.image.load("./assets/images/icons/1.png"),(60,60))
+i2 = pygame.transform.scale(pygame.image.load("./assets/images/icons/2.png"),(60,60))
+i3 = pygame.transform.scale(pygame.image.load("./assets/images/icons/3.png"),(60,60))
+i4 = pygame.transform.scale(pygame.image.load("./assets/images/icons/4.png"),(60,60))
+i5 = pygame.transform.scale(pygame.image.load("./assets/images/icons/5.png"),(60,60))
+i6 = pygame.transform.scale(pygame.image.load("./assets/images/icons/6.png"),(60,60))
+i7 = pygame.transform.scale(pygame.image.load("./assets/images/icons/7.png"),(60,60))
+i8 = pygame.transform.scale(pygame.image.load("./assets/images/icons/8.png"),(60,60))
+images = [i1, i2, i3, i4, i5, i6, i7, i8]
+    
+# endregion
+
 # region STATES
 CHEAT = 0  # sets base income crazy high for testing purposes if true, DEFAULT 0
-button = 0
-shopStatus = 0
-sMenuStatus = 0
+button = 0  # button pressed
+shopStatus = 0  # shop opened or closed
+sMenuStatus = 0  # manager or upgrade window
 
 # endregion
 
-# region TIME
+# region COOLDOWNS
 clock = pygame.time.Clock()
 
-s1 = s2 = s3 = s4 = s5 = s6 = s7 = s8 = True
-tm1 = tm2 = tm3 = tm4 = tm5 = tm6 = tm7 = tm8 = pygame.time.get_ticks()
+s1 = s2 = s3 = s4 = s5 = s6 = s7 = s8 = True  # click statuses
+tm1 = (
+    tm2
+) = (
+    tm3
+) = (
+    tm4
+) = tm5 = tm6 = tm7 = tm8 = pygame.time.get_ticks()  # timers used for cooldown math
 
+# cooldowns (in ms)
 c1 = 0.6 * 1000
-c2 = 3 * 1000
-c3 = 6 * 1000
-c4 = 12 * 1000
-c5 = 24 * 1000
-c6 = 48 * 1000
-c7 = 96 * 1000
-c8 = 192 * 1000
+c2 = 2 * 1000
+c3 = 4 * 1000
+c4 = 8 * 1000
+c5 = 16 * 1000
+c6 = 32 * 1000
+c7 = 64 * 1000
+c8 = 128 * 1000
 
 canClick = [s1, s2, s3, s4, s5, s6, s7, s8]
 timers = [tm1, tm2, tm3, tm4, tm5, tm6, tm7, tm8]
@@ -199,6 +227,8 @@ upStats = [u1s, u2s, u3s, u4s, u5s, u6s, u7s, u8s]
 # endregion
 
 # region UNLOCKS
+
+# unlock statuses of each milestone
 us11 = us12 = us13 = us14 = us15 = us16 = us17 = us18 = 0  # 25
 us21 = us22 = us23 = us24 = us25 = us26 = us27 = us28 = 0  # 50
 us31 = us32 = us33 = us34 = us35 = us36 = us37 = us38 = 0  # 100
@@ -219,6 +249,7 @@ unlocks7 = [us71, us72, us73, us74, us75, us76, us77, us78]
 
 # region MONEY
 
+
 # calculates task cost requirements (e.g. task 2 is $60)
 def calcReqCost(n):
     if n == 1:
@@ -228,6 +259,7 @@ def calcReqCost(n):
     return final
 
 
+# calculates investment cost requirements, also used for displaying prices with multipliers
 def calcInvCost(n):
     if statuses[n - 1] == 0:
         final = (calcReqCost(n) * (1 - coefficients[n - 1] ** buyMultiplier)) / (
@@ -241,11 +273,12 @@ def calcInvCost(n):
 
     return final
 
-# base moneys
-money = 0.00
-baseMoney = 60.00
 
-# coefficients constant
+# base money amounts
+money = 0.00  # total money
+baseMoney = 60.00  # base money - for calculations
+
+# coefficients constant, for investment cost calculation
 CF1 = 1.07
 CF2 = 1.15
 CF3 = 1.14
@@ -256,7 +289,7 @@ CF7 = 1.10
 CF8 = 1.09
 coefficients = [CF1, CF2, CF3, CF4, CF5, CF6, CF7, CF8]
 
-# base income
+# base income of each task
 if CHEAT == 0:
     BI1 = 1.00
 else:
@@ -270,12 +303,13 @@ BI7 = calcReqCost(7) * 0.5
 BI8 = calcReqCost(8) * 0.5
 BIarr = [BI1, BI2, BI3, BI4, BI5, BI6, BI7, BI8]
 
-multStatus = 0
-buyMultiplier = 1
+multStatus = 0  # buy multiplier status
+buyMultiplier = 1  # buy multiplier (1, 10, 100)
 
 # endregion
 
 # region MAIN FUNCTIONS
+
 
 # function that centers text input - all parameters specified
 def centerText(txt, font, col, x, y, w, h):
@@ -347,7 +381,7 @@ def numberText(num, case):
     return number
 
 
-# draws the task boxes
+# draws the task boxes, and everything that happens within a task
 def task(statVar, x, y, n):
     global money
 
@@ -362,12 +396,16 @@ def task(statVar, x, y, n):
         centerText(names[n - 1], light, LIGHT1, x, y - 20, boxW, boxH)
         centerText(numberText(calcInvCost(n), 1), light, LIGHT1, x, y + 20, boxW, boxH)
     elif statVar == 1:  # Task is Bought...
-        # COOLDOWN, AND ADD MONEY WHEN COOLDOWN ENDS
-        if canClick[n - 1] == False:
+        # region COOLDOWNS
+        if (
+            canClick[n - 1] == False
+        ):  # if the cooldown is currently going on (you cant click the task)
             cd = cooldowns[n - 1] - (pygame.time.get_ticks() - timers[n - 1])
             if (boxW / (4 / 3) - 4) - (
                 cd / (cooldowns[n - 1] / (boxW / (4 / 3) - 4))
-            ) >= (boxW / (4 / 3) - 4): # if the cooldown bar exceeds the overall box, set it to a max value
+            ) >= (
+                boxW / (4 / 3) - 4
+            ):  # if the cooldown bar exceeds the overall box, set it to a max value
                 pygame.draw.rect(
                     screen,
                     DARK1,
@@ -392,11 +430,11 @@ def task(statVar, x, y, n):
                 )
             secs = math.floor(cd / 1000 % 60)
             mins = math.floor(cd / 60000)
-            if mins >= 1:
+            if mins >= 1:  # if higher than 1 minute
                 cooldown = "%im %is" % (mins, secs)
             else:
                 cooldown = "%is" % (secs)
-            if cd <= 0:
+            if cd <= 0:  # when cooldown is up
                 canClick[n - 1] = True
                 money += BIarr[n - 1] * amounts[n - 1]
                 cooldown = "0s"
@@ -409,7 +447,7 @@ def task(statVar, x, y, n):
                 boxW / (4.66) + 5,
                 boxH / 2,
             )
-        else:
+        else:  # when task isnt running - static
             if manStats[n - 1] == 1:
                 canClick[n - 1] = False
                 timers[n - 1] = pygame.time.get_ticks()
@@ -430,7 +468,9 @@ def task(statVar, x, y, n):
                 boxH / 2,
             )
 
-        # boxes
+        # endregion
+
+        # region BOXES
         pygame.draw.rect(screen, LIGHT1, (x, y, boxW, boxH), 5)  # whole task box
         pygame.draw.rect(screen, LIGHT1, (x, y, boxW / 4, boxH))  # left hand box
         pygame.draw.rect(
@@ -440,9 +480,10 @@ def task(statVar, x, y, n):
             5,
         )  # bottom action box - Buy and Cooldown
 
+        screen.blit(images[n-1],(x + 17.5, y)) # show icon
         centerText(
             str(amounts[n - 1]), regularS, DARK4, x, y + boxH / 2, boxW / 4, boxH / 2
-        )
+        )  # amount of investments
 
         inc = BIarr[n - 1] * amounts[n - 1]  # income
         centerText(
@@ -454,6 +495,8 @@ def task(statVar, x, y, n):
             boxW / (4 / 3) + 7,
             boxH / 2,
         )
+
+        # endregion
 
         # region INVESTMENT BUTTON
         if money >= calcInvCost(n):  # Can buy Investment - Buy button turns Green
@@ -487,7 +530,7 @@ def task(statVar, x, y, n):
                 boxW / (4 / 3) / 1.4 + 7,
                 boxH / 2,
             )
-        
+
         # endregion
 
         # region MILESTONES
@@ -515,16 +558,16 @@ def task(statVar, x, y, n):
             cooldowns[n - 1] /= 2
             unlocks6[n - 1] = 1
             upgrade.play()
-        if amounts[n-1] >= 500 and unlocks7[n - 1] == 0:
+        if amounts[n - 1] >= 500 and unlocks7[n - 1] == 0:
             if n == 1:
-                BIarr[n-1] *= 4
+                BIarr[n - 1] *= 4
             elif n == 2:
-                BIarr[6-1] *= 11
+                BIarr[6 - 1] *= 11
             else:
-                BIarr[n-1] *= 2
+                BIarr[n - 1] *= 2
             unlocks7[n - 1] = 1
             upgrade.play()
-        
+
         # endregion
 
 
@@ -532,7 +575,9 @@ def task(statVar, x, y, n):
 def taskClick(n, x, y, bx, by):
     global money
 
-    if mx > x and mx < x + boxW and my > y and my < y + boxH and shopStatus == 0:
+    if (
+        mx > x and mx < x + boxW and my > y and my < y + boxH and shopStatus == 0
+    ):  # regular mode - buying tasks (shop cant be enabled)
         if statuses[n - 1] == 0 and money >= calcInvCost(n):  # buy task
             money -= calcInvCost(n)
             statuses[n - 1] = 1
@@ -558,7 +603,7 @@ def taskClick(n, x, y, bx, by):
             money -= calcInvCost(n)
             amounts[n - 1] += buyMultiplier
             buy.play()
-        elif statuses[n - 1] == 1:
+        elif statuses[n - 1] == 1:  # start cooldown!!
             if canClick[n - 1] == True:
                 timers[n - 1] = pygame.time.get_ticks()
                 canClick[n - 1] = False
@@ -568,7 +613,9 @@ def taskClick(n, x, y, bx, by):
 def shop(x, y, n):
     global money
 
-    if sMenuStatus == 0 and manStats[n - 1] == 0:
+    if (
+        sMenuStatus == 0 and manStats[n - 1] == 0
+    ):  # if on managers page and the manager hasnt been bought
         pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW, mBoxH), 2)  # whole task box
         pygame.draw.rect(
             screen, LIGHT1, (x, y, mBoxW * (4 / 5), mBoxH), 2
@@ -584,7 +631,9 @@ def shop(x, y, n):
             mBoxW * (4 / 5),
             mBoxH,
         )
-        if money >= manCosts[n - 1] and manStats[n - 1] != 1:
+        if (
+            money >= manCosts[n - 1] and manStats[n - 1] != 1
+        ):  # dark hire button if cant afford
             pygame.draw.rect(
                 screen, LIGHT1, (x + mBoxW * (4 / 5) - 2, y, mBoxW * (1 / 5) + 2, mBoxH)
             )  # hire button
@@ -597,7 +646,7 @@ def shop(x, y, n):
                 mBoxW * (1 / 5) + 2,
                 mBoxH,
             )
-        else:
+        else:  # light hire button to buy (can afford)
             pygame.draw.rect(
                 screen,
                 LIGHT1,
@@ -613,7 +662,7 @@ def shop(x, y, n):
                 mBoxW * (1 / 5) + 2,
                 mBoxH,
             )
-    elif sMenuStatus == 1 and upStats[n - 1] == 0:
+    elif sMenuStatus == 1 and upStats[n - 1] == 0:  # upgrades instead of managers
         pygame.draw.rect(screen, LIGHT1, (x, y, mBoxW, mBoxH), 2)  # whole task box
         pygame.draw.rect(
             screen, LIGHT1, (x, y, mBoxW * (4 / 5), mBoxH), 2
@@ -666,7 +715,9 @@ def shop(x, y, n):
 def shopClick(x, y, n):
     global money
 
-    if money >= manCosts[n - 1] and manStats[n - 1] != 1 and sMenuStatus == 0:
+    if (
+        money >= manCosts[n - 1] and manStats[n - 1] != 1 and sMenuStatus == 0
+    ):  # if can buy a manager!
         if (
             button == 1
             and mx >= x + mBoxW * (4 / 5) - 2
@@ -677,7 +728,9 @@ def shopClick(x, y, n):
             manStats[n - 1] = 1
             money -= manCosts[n - 1]
             upgrade.play()
-    elif money >= upCosts[n - 1] and upStats[n - 1] != 1 and sMenuStatus == 1:
+    elif (
+        money >= upCosts[n - 1] and upStats[n - 1] != 1 and sMenuStatus == 1
+    ):  # if can buy an upgrade!
         if (
             button == 1
             and mx >= x + mBoxW * (4 / 5) - 2
@@ -690,18 +743,19 @@ def shopClick(x, y, n):
             BIarr[n - 1] *= 3
             upgrade.play()
 
+
 # endregion
 
 playing = True
 while playing:
-    for event in pygame.event.get():
+    for event in pygame.event.get():  # pygame events
         if event.type == pygame.QUIT:
             playing = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
             button = event.button
 
-    if button == 1:
+    if button == 1:  # button pressed
         count = 1
         for i in range(1, 9):  # check for clicks for TASKS
             if i == 5:
@@ -725,7 +779,9 @@ while playing:
                 else:
                     shopClick(mBoxRX2, yPos[count - 1], i)
                     count += 1
-        if mx >= 865 and mx <= 985 and my >= 15 and my <= 60: # header - buy multiplier button
+        if (
+            mx >= 865 and mx <= 985 and my >= 15 and my <= 60
+        ):  # header - buy multiplier button
             multStatus += 1
             if multStatus == 1:
                 buyMultiplier = 10
@@ -735,36 +791,46 @@ while playing:
                 multStatus = 0
                 buyMultiplier = 1
             toggle.play()
-        elif mx >= 865 and mx <= 985 and my >= 70 and my <= 115: # shop button - open and close
+        elif (
+            mx >= 865 and mx <= 985 and my >= 70 and my <= 115
+        ):  # shop button - open and close
             if shopStatus == 0:
                 shopStatus = 1
             elif shopStatus == 1:
                 shopStatus = 0
             buy.play()
-        elif mx >= 875 and mx <= 975 and my >= 150 and my <= 200: # shop X button - close shop
+        elif (
+            mx >= 875 and mx <= 975 and my >= 150 and my <= 200
+        ):  # shop X button - close shop
             if shopStatus == 1:
                 shopStatus = 0
-        elif mx >= 25 and mx <= 175 and my >= 150 and my <= 200 and shopStatus == 1: # switch to managers in shop
+        elif (
+            mx >= 25 and mx <= 175 and my >= 150 and my <= 200 and shopStatus == 1
+        ):  # switch to managers in shop
             sMenuStatus = 0
-        elif mx >= 175 and mx <= 325 and my >= 150 and my <= 200 and shopStatus == 1: # switch to upgrades in shop
+        elif (
+            mx >= 175 and mx <= 325 and my >= 150 and my <= 200 and shopStatus == 1
+        ):  # switch to upgrades in shop
             sMenuStatus = 1
-        elif mx >= 735 and mx <= 855 and my >= 15 and my <= 60: # save button
+        elif mx >= 735 and mx <= 855 and my >= 15 and my <= 60:  # save button
             file = open("save.txt", "w")
             file.write(str(money))
             file.close()
-        elif mx >= 735 and mx <= 855 and my >= 70 and my <= 115: # load button
+        elif mx >= 735 and mx <= 855 and my >= 70 and my <= 115:  # load button
             file = open("save.txt", "r")
             money = float(file.read())
             file.close()
-        elif mx >= 605 and mx <= 725 and my >= 15 and my <= 60: # music button
+        elif mx >= 605 and mx <= 725 and my >= 15 and my <= 60:  # music button
             if music == 1:
                 music = 0
                 pygame.mixer.music.stop()
             else:
                 music = 1
                 pygame.mixer.music.play(-1)
-        elif mx >= 605 and mx <= 725 and my >= 70 and my <= 115: # instructions button
-            webbrowser.open("https://github.com/anthonyhuang07/ICS3U1-FPT/blob/main/docs/instructions.md")
+        elif mx >= 605 and mx <= 725 and my >= 70 and my <= 115:  # instructions button
+            webbrowser.open(
+                "https://github.com/anthonyhuang07/ICS3U1-FPT/blob/main/docs/instructions.md"
+            )
 
         button = 0
 
@@ -807,7 +873,7 @@ while playing:
 
     # tasks
     count = 1
-    for i in range(1, 9): # creates task boxes
+    for i in range(1, 9):  # creates task boxes from 1 to 9
         if i == 5:
             count = 1
         yPos = [boxY1, boxY2, boxY3, boxY4]
@@ -818,7 +884,7 @@ while playing:
             task(statuses[i - 1], boxRX2, yPos[count - 1], i)
             count += 1
 
-    # shop
+    # shop - draw
     if shopStatus == 1:
         pygame.draw.rect(screen, DARK4, (25, 150, 950, 525))
         pygame.draw.rect(screen, LIGHT1, (25, 150, 950, 525), 5)
@@ -847,8 +913,6 @@ while playing:
             else:
                 shop(mBoxRX2, yPos[count - 1], i)
                 count += 1
-
-    
 
     pygame.display.update()
     clock.tick(60)
