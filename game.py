@@ -13,6 +13,7 @@
 # region PYGAME
 import pygame
 import math
+import webbrowser
 
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))  # width 1000, height 700
@@ -762,7 +763,8 @@ while playing:
             else:
                 music = 1
                 pygame.mixer.music.play(-1)
-        elif mx >= 605 and mx <= 725 and my >= 70 and my <= 115: # music button
+        elif mx >= 605 and mx <= 725 and my >= 70 and my <= 115: # instructions button
+            webbrowser.open("https://github.com/anthonyhuang07/ICS3U1-FPT/blob/main/docs/instructions.md")
 
         button = 0
 
@@ -799,7 +801,7 @@ while playing:
 
     # instructions button
     pygame.draw.rect(screen, LIGHT1, (605, 70, 120, 45))
-    centerText("Music", regularXS, DARK4, 605, 70, 120, 45)
+    centerText("Help", regularXS, DARK4, 605, 70, 120, 45)
 
     # endregion
 
